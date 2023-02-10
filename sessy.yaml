@@ -1,0 +1,63 @@
+# Include this file under the `rest:` key in your configuration.yaml
+# Example: `rest: !include sessy.yaml`
+- resource_template: "http://SESSY_BATTERY_IP/api/v1/power/status"
+  username: SESSY_BATTERY_USERNAME # Replace this with your Sessy Battery unit local admin username
+  password: !secret sessy_battery_password # Create this value in secrets.yaml
+  scan_interval: 5
+  sensor:
+    - name: Sessy Status
+      value_template: "{{ value_json.sessy.system_state }}"
+
+    - name: Sessy Power
+      value_template: "{{ value_json.sessy.power | int }}"
+      unit_of_measurement: W
+      device_class: power
+      state_class: measurement
+
+    - name: Sessy Power Setpoint
+      value_template: "{{ value_json.sessy.power_setpoint | int }}"
+      unit_of_measurement: W
+      device_class: power
+      state_class: measurement
+
+    - name: Sessy Power Charging
+      value_template: "{{ [value_json.sessy.power | int,0] | min *-1}}"
+      unit_of_measurement: W
+      device_class: power
+      state_class: measurement
+
+    - name: Sessy Power Discharging
+      value_template: "{{ [value_json.sessy.power | int,0] | max }}"
+      unit_of_measurement: W
+      device_class: power
+      state_class: measurement
+
+    - name: Sessy State of Charge
+      value_template: "{{ value_json.sessy.state_of_charge | float | round(1) * 100 }}"
+      unit_of_measurement: "%"
+      device_class: battery
+      state_class: total
+
+    - name: Sessy Battery Energy
+      value_template: "{{ value_json.sessy.state_of_charge | float | round(1) * 5 }}"
+      unit_of_measurement: "kWh"
+      device_class: energy
+      state_class: total
+
+    # This is needed to create a Utility Meter with the amount of returned energy
+    - name: Sessy Battery Energy Inverted
+      value_template: "{{ value_json.sessy.state_of_charge | float | round(1) * -5 }}"
+      unit_of_measurement: "kWh"
+      device_class: energy
+      state_class: total
+
+- resource_template: "http://SESSY_DONGLE_IP/api/v1/p1/status"
+  username: SESSY_DONGLE_USERNAME # Replace this with your Sessy Battery unit local admin username
+  password: !secret sessy_dongle_password # Create this value in secrets.yaml
+  scan_interval: 5
+  sensor:
+    - name: Sessy P1 Power
+      value_template: "{{ value_json.net_power_delivered | float | round(3) }}"
+      device_class: power
+      state_class: measurement
+      unit_of_measurement: kW
