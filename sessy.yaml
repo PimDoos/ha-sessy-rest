@@ -33,20 +33,20 @@
       state_class: measurement
 
     - name: Sessy State of Charge
-      value_template: "{{ value_json.sessy.state_of_charge | float | round(1) * 100 }}"
+      value_template: "{{ value_json.sessy.state_of_charge | float | round(3) * 100 }}"
       unit_of_measurement: "%"
       device_class: battery
       state_class: total
 
     - name: Sessy Battery Energy
-      value_template: "{{ value_json.sessy.state_of_charge | float | round(1) * 5 }}"
+      value_template: "{{ value_json.sessy.state_of_charge | float | round(3) * 5 }}"
       unit_of_measurement: "kWh"
       device_class: energy
       state_class: total
-
+      
     # This is needed to create a Utility Meter with the amount of returned energy
     - name: Sessy Battery Energy Inverted
-      value_template: "{{ value_json.sessy.state_of_charge | float | round(1) * -5 }}"
+      value_template: "{{ value_json.sessy.state_of_charge | float | round(3) * -5 }}"
       unit_of_measurement: "kWh"
       device_class: energy
       state_class: total
