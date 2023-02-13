@@ -1,12 +1,13 @@
 # Include this file under the `rest:` key in your configuration.yaml
 # Example: `rest: !include sessy.yaml`
 - resource_template: "http://SESSY_BATTERY_IP/api/v1/power/status"
-  username: SESSY_BATTERY_USERNAME # Replace this with your Sessy Battery unit local admin username
-  password: !secret sessy_battery_password # Create this value in secrets.yaml
+  username: !secret sessy_battery_username
+  password: !secret sessy_battery_password
   scan_interval: 5
   sensor:
     - name: Sessy Status
-      value_template: "{{ value_json.sessy.system_state }}"
+      value_template: >
+        {{ value_json.sessy.system_state | replace('SYSTEM_STATE_','') | replace('_',' ') | title }}
 
     - name: Sessy Power
       value_template: "{{ value_json.sessy.power | int }}"
@@ -43,17 +44,25 @@
       unit_of_measurement: "kWh"
       device_class: energy
       state_class: total
-      
-    # This is needed to create a Utility Meter with the amount of returned energy
+
     - name: Sessy Battery Energy Inverted
       value_template: "{{ value_json.sessy.state_of_charge | float | round(3) * -5 }}"
       unit_of_measurement: "kWh"
       device_class: energy
       state_class: total
 
+- resource_template: "http://SESSY_BATTERY_IP/api/v1/power/active_strategy"
+  username: !secret sessy_battery_username
+  password: !secret sessy_battery_password
+  scan_interval: 30
+  sensor:
+    - name: Sessy Power Strategy
+      value_template: >
+        {{ value_json.strategy | replace('POWER_STRATEGY_','') | replace('_',' ') | title }}
+
 - resource_template: "http://SESSY_DONGLE_IP/api/v1/p1/status"
-  username: SESSY_DONGLE_USERNAME # Replace this with your Sessy Battery unit local admin username
-  password: !secret sessy_dongle_password # Create this value in secrets.yaml
+  username: !secret sessy_dongle_username
+  password: !secret sessy_dongle_password
   scan_interval: 5
   sensor:
     - name: Sessy P1 Power
