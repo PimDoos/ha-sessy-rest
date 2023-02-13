@@ -34,22 +34,33 @@
       state_class: measurement
 
     - name: Sessy State of Charge
-      value_template: "{{ value_json.sessy.state_of_charge | float | round(3) * 100 }}"
+      value_template: "{{ (value_json.sessy.state_of_charge | float * 100) | round(1) }}"
       unit_of_measurement: "%"
       device_class: battery
       state_class: total
 
     - name: Sessy Battery Energy
-      value_template: "{{ value_json.sessy.state_of_charge | float | round(3) * 5 }}"
+      value_template: "{{ (value_json.sessy.state_of_charge | float  * 5) | round(3) }}"
       unit_of_measurement: "kWh"
       device_class: energy
       state_class: total
 
+    # Sensor for use as a source for the Utility Meter integration to get battery discharge statistics
     - name: Sessy Battery Energy Inverted
-      value_template: "{{ value_json.sessy.state_of_charge | float | round(3) * -5 }}"
+      value_template: "{{ (value_json.sessy.state_of_charge | float * -5) | round(3) }}"
       unit_of_measurement: "kWh"
       device_class: energy
       state_class: total
+    
+    # Estimated runtime at a minimum of 150 W, current load otherwise
+    - name: Sessy Battery Runtime Remaining
+      value_template: >
+        {% set energy = value_json.sessy.state_of_charge | float | round(3) * 5000 %}
+        {% set load = [value_json.sessy.power | int,150] | max %}
+        {{ (energy / load) | round(2) }}
+      device_class: duration
+      state_class: measurement
+      unit_of_measurement: "h"
 
 - resource_template: "http://SESSY_BATTERY_IP/api/v1/power/active_strategy"
   username: !secret sessy_battery_username
@@ -70,3 +81,4 @@
       device_class: power
       state_class: measurement
       unit_of_measurement: kW
+
