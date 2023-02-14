@@ -61,6 +61,43 @@
       device_class: duration
       state_class: measurement
       unit_of_measurement: "h"
+      
+    # Renewable energy sensors
+    - name: Sessy Renewable Phase 1 Power
+      value_template: "{{ value_json.renewable_energy_phase1.power | int }}"
+      unit_of_measurement: W
+      device_class: power
+      state_class: measurement
+
+    - name: Sessy Renewable Phase 1 Voltage
+      value_template: "{{ ((value_json.renewable_energy_phase1.voltage_rms | int) / 1000) | round(3) }}"
+      unit_of_measurement: V
+      device_class: voltage
+      state_class: measurement
+
+    - name: Sessy Renewable Phase 2 Power
+      value_template: "{{ value_json.renewable_energy_phase2.power | int }}"
+      unit_of_measurement: W
+      device_class: power
+      state_class: measurement
+
+    - name: Sessy Renewable Phase 2 Voltage
+      value_template: "{{ ((value_json.renewable_energy_phase2.voltage_rms | int) / 1000) | round(3) }}"
+      unit_of_measurement: V
+      device_class: voltage
+      state_class: measurement
+
+    - name: Sessy Renewable Phase 3 Power
+      value_template: "{{ value_json.renewable_energy_phase3.power | int }}"
+      unit_of_measurement: W
+      device_class: power
+      state_class: measurement
+
+    - name: Sessy Renewable Phase 3 Voltage
+      value_template: "{{ ((value_json.renewable_energy_phase3.voltage_rms | int) / 1000) | round(3) }}"
+      unit_of_measurement: V
+      device_class: voltage
+      state_class: measurement
 
 - resource_template: "http://SESSY_BATTERY_IP/api/v1/power/active_strategy"
   username: !secret sessy_battery_username
