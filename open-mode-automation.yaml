@@ -13,10 +13,10 @@
   action:
   - variables:
       new_setpoint: >
-        {% set sessy_setpoint = states("sensor.sessy_power_setpoint") | int %}  
+        {% set sessy_power = states("sensor.sessy_powe") | int %}  
         {% set grid_power = states("sensor.shelly_meterkast_channel_1_power") | int %} 
         {% set charger_power = states("sensor.laadpaal_power") | int %}  
-        {{ sessy_setpoint + (grid_power - charger_power) }}
+        {{ sessy_power + (grid_power - charger_power) }}
     alias: Calculate new setpoint
   - choose:
     - conditions:
