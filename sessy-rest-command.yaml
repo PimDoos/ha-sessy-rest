@@ -3,7 +3,7 @@
 
 # Update the used strategy. Supply the 'strategy' data key in the service call with a valid strategy
 sessy_update_strategy:
-  url: http://sessy-dyj4.iot.ed.pp-ict.lan/api/v1/power/active_strategy
+  url: http://SESSY_BATTERY_IP/api/v1/power/active_strategy
   username: !secret sessy_battery_username
   password: !secret sessy_battery_password
   method: POST
@@ -14,7 +14,7 @@ sessy_update_strategy:
 
 # Update the power setpoint. Supply the 'setpoint' data key in the service call with a power value in Watts
 sessy_update_setpoint:
-  url: http://sessy-dyj4.iot.ed.pp-ict.lan/api/v1/power/setpoint
+  url: http://SESSY_BATTERY_IP/api/v1/power/setpoint
   username: !secret sessy_battery_username
   password: !secret sessy_battery_password
   method: POST
