@@ -1,0 +1,24 @@
+# Sessy REST commands
+# Include this file under the `rest_command:` key in your configuration.yaml
+
+# Update the used strategy. Supply the 'strategy' data key in the service call with a valid strategy
+sessy_update_strategy:
+  url: http://sessy-dyj4.iot.ed.pp-ict.lan/api/v1/power/active_strategy
+  username: !secret sessy_battery_username
+  password: !secret sessy_battery_password
+  method: POST
+  payload: >
+    {
+      "strategy": "{{ strategy }}"
+    }
+
+# Update the power setpoint. Supply the 'setpoint' data key in the service call with a power value in Watts
+sessy_update_setpoint:
+  url: http://sessy-dyj4.iot.ed.pp-ict.lan/api/v1/power/setpoint
+  username: !secret sessy_battery_username
+  password: !secret sessy_battery_password
+  method: POST
+  payload: >
+    {
+      "setpoint": {{ setpoint | int }}
+    }
