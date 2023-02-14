@@ -1,0 +1,54 @@
+# Null on the Meter example automation. Uses Sessy Open Mode (POWER_STRATEGY_API) 
+- id: '1676406425958'
+  alias: Sessy Nul op de Meter
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.shelly_meterkast_channel_1_power
+  condition:
+  - condition: state
+    entity_id: sensor.sessy_power_strategy
+    state: Api
+  action:
+  - variables:
+      new_setpoint: >
+        {% set sessy_setpoint = states("sensor.sessy_power_setpoint") | int %}  
+        {% set grid_power = states("sensor.shelly_meterkast_channel_1_power") | int %} 
+        {% set charger_power = states("sensor.laadpaal_power") | int %}  
+        {{ sessy_setpoint + (grid_power - charger_power) }}
+    alias: Calculate new setpoint
+  - choose:
+    - conditions:
+      - condition: or
+        conditions:
+        - condition: numeric_state
+          entity_id: sensor.sessy_state_of_charge
+          above: 1
+        - condition: template
+          value_template: '{{ new_setpoint < 100 }}'
+        alias: Battery not empty
+      - condition: or
+        conditions:
+        - condition: numeric_state
+          entity_id: sensor.sessy_state_of_charge
+          below: 100
+        - condition: template
+          value_template: '{{ new_setpoint > 100 }}'
+        alias: Battery not full
+      sequence:
+      - service: rest_command.sessy_update_setpoint
+        data:
+          setpoint: '{{ new_setpoint }}'
+        alias: Set Sessy Power to calculated value
+    default:
+    - service: rest_command.sessy_update_setpoint
+      data:
+        setpoint: 0
+      alias: Set Sessy Power to 0 W
+  - delay: # Rate limit
+      hours: 0
+      minutes: 0
+      seconds: 30
+      milliseconds: 0
+  mode: single
