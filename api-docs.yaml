@@ -1,0 +1,169 @@
+openapi: 3.0.3
+info:
+  title: Sessy API
+  description: |-
+    This is an overview of everything you can view and change in your Sessy via its API. You can use it to geek out on stats at home, or integrate Sessy into your home automation.
+    Wouldn't it be cool to have Sessy talk to all kinds of home automation software out there? Enjoy!
+  version: 1.0.0
+tags:
+  - name: power
+    description: A way to request power metrics and change settings
+paths:
+  /api/v1/power/status:
+    get:
+      tags:
+        - power
+      summary: Returns the current power state and metrics
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/power_status'
+        '500':
+          description: An error occurred (error message in response body)
+  /api/v1/power/active_strategy:
+    get:
+      tags:
+        - power
+      summary: Returns the active power strategy
+      description: A power strategy determines how your Sessy device charges and delivers power back to the net throughout the day.
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/active_power_strategy'
+        '500':
+          description: An error occurred (error message in response body)
+    post:
+      tags:
+        - power
+      summary: Change the active power strategy
+      requestBody:
+        description: See the _Schema_ tab for valid values of "strategy"
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/active_power_strategy'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/api_ok_response'
+        '500':
+          description: An error occurred (error message in response body)
+  /api/v1/power/setpoint:
+    post:
+      tags:
+        - power
+      summary: Change the wanted generating/charging power
+      requestBody:
+        description: Only works when the power strategy is set to "POWER_STRATEGY_API"
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/power_setpoint'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/api_ok_response'
+        '500':
+          description: An error occurred (error message in response body)
+components:
+  schemas:
+    power_status:
+      required:
+        - sessy
+        - renewable_energy_phase1
+        - renewable_energy_phase2
+        - renewable_energy_phase3
+      type: object
+      properties:
+        sessy:
+          type: object
+          required:
+            - state_of_charge
+            - power
+            - power_setpoint
+            - system_state
+          properties:
+            state_of_charge:
+              type: number
+              example: 0.6
+              minimum: 0.0
+              maximum: 1.0
+              description: 0.0 indicates an empty battery pack, 1.0 a full one
+            power:
+              type: integer
+              example: 1000
+              description: Currently delivered power in Watts (positive for generating / sending into net, negative for charging / extracting from net)
+            power_setpoint:
+              type: integer
+              example: 1000
+              description: How much power in Watts the current power strategy wants to generate (positive value) or charge with (negative value)
+            system_state:
+              type: string
+              example: SYSTEM_STATE_RUNNING_SAFE
+              description: The current state that Sessy's power subsystem is in
+        renewable_energy_phase1:
+          $ref: '#/components/schemas/phase'
+        renewable_energy_phase2:
+          $ref: '#/components/schemas/phase'
+        renewable_energy_phase3:
+          $ref: '#/components/schemas/phase'
+    active_power_strategy:
+      required:
+        - strategy
+        - status
+      type: object
+      properties:
+        strategy:
+          type: string
+          example: POWER_STRATEGY_API
+          enum:
+            - POWER_STRATEGY_NOM
+            - POWER_STRATEGY_ROI
+            - POWER_STRATEGY_API
+            - POWER_STRATEGY_IDLE
+    power_setpoint:
+      required:
+        - setpoint
+      type: object
+      properties:
+        setpoint:
+          type: integer
+          example: 1000
+          description: The wanted power generated from (positive value) or charged into (negative value) the Sessy, from the active power strategy
+    phase:
+      type: object
+      required:
+        - voltage_rms
+        - current_rms
+        - power
+      properties:
+        voltage_rms:
+          type: number
+          example: 230.0
+        current_rms:
+          type: number
+          example: 4.1
+        power:
+          type: integer
+          example: 1200
+          description: The real (as opposed to apparent) power passing through this phase
+    api_ok_response:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "ok"
