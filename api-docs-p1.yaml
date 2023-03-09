@@ -1,0 +1,50 @@
+openapi: 3.0.3
+info:
+  title: Sessy API
+  description: |-
+    This is an overview of everything you can view and change in your P1 meter via its API. You can use it to geek out on stats at home, or integrate into your home automation.
+    Wouldn't it be cool to have Sessy's P1 meter talk to all kinds of home automation software out there? Enjoy!
+  version: 1.0.0
+tags:
+  - name: P1 Meter
+    description: A way to request power metrics and change settings
+paths:
+  /api/v1/p1/status:
+    get:
+      tags:
+        - P1 Meter
+      summary: Returns the actual power and state metrics of the P1 meter
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/p1_status'
+        '500':
+          description: An error occurred (error message in response body)
+components:
+  schemas:
+    p1_status:
+      required:
+        - status
+        - state
+        - net_power_delivered
+      type: object
+      properties:
+        status:
+          type: string
+          example: ok
+        state:
+          type: string
+          example: P1_OK
+          enum:
+            - P1_NOT_CONNECTED
+            - P1_DATAVALIDITY_ERR
+            - P1_VERSION_ERR
+            - P1_PARSE_ERR
+            - P1_OK
+        net_power_delivered:
+          type: number
+          example: 2.25
+          description: Indicates the total power measured by the P1 meter
