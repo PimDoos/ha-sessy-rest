@@ -13,7 +13,7 @@ paths:
     get:
       tags:
         - P1 Meter
-      summary: Returns the actual power and state metrics of the P1 meter
+      summary: Returns only the actual power and state metrics of the P1 meter
       responses:
         '200':
           description: Successful operation
@@ -21,6 +21,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/p1_status'
+        '500':
+          description: An error occurred (error message in response body)
+  /api/v1/p1/details:
+    get:
+      tags:
+        - P1 Meter
+      summary: Returns power and state metrics of the P1 meter
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/p1_details'
         '500':
           description: An error occurred (error message in response body)
 components:
@@ -47,4 +61,52 @@ components:
         net_power_delivered:
           type: number
           example: 2.25
-          description: Indicates the total power measured by the P1 meter
+          description: Indicates the power consumption measured by the P1 meter
+    p1_details:
+      required:
+        - status
+        - state
+        - total_power
+        - power_consumed
+        - power_produced
+        - voltage_l1
+        - voltage_l2
+        - voltage_l3
+      type: object
+      properties:
+        status:
+          type: string
+          example: ok
+        state:
+          type: string
+          example: P1_OK
+          enum:
+            - P1_NOT_CONNECTED
+            - P1_DATAVALIDITY_ERR
+            - P1_VERSION_ERR
+            - P1_PARSE_ERR
+            - P1_OK
+        total_power:
+          type: number
+          example: 2.25
+          description: Indicates the net power measured by the P1 meter
+        power_consumed:
+          type: number
+          example: 3
+          description: Indicates the total power measured by the P1 meter going in to the electricity grid
+        power_produced:
+          type: number
+          example: 0.75
+          description: Indicates the total power measured by the P1 meter going in to the electricity grid
+        voltage_l1:
+          type: number
+          example: 231
+          description: Phase voltage measured by the p1 meter
+        voltage_l2:
+          type: number
+          example: 232
+          description: Phase voltage measured by the p1 meter
+        voltage_l3:
+          type: number
+          example: 233
+          description: Phase voltage measured by the p1 meter
